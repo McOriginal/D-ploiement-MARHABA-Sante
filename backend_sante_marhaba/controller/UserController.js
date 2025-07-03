@@ -134,7 +134,7 @@ exports.sendVerifyCodePassword = async (req, res) => {
       from: `"Santé MARHABA" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Code de réinitialisation',
-      text: `Votre code de réinitialisation est : ${code}. Il expire dans 10 seconde.`,
+      text: `Votre code de réinitialisation est : ${code}. Il expire dans 2 minutes.`,
     });
 
     res
