@@ -69,20 +69,19 @@ exports.getApprovisonementById = async (req, res) => {
 // Delete an approvisonement by ID
 exports.deleteApprovisonement = async (req, res) => {
   try {
-    const approvisonement = await Approvisonement.findByIdAndDelete(
-      req.params.id
-    );
+    const approvisonement = await Approvisonement.findById(req.params.id);
 
     if (!approvisonement) {
       return res.status(404).json({ message: 'Approvisonement not found' });
     }
-
     // On décrémente le stock du médicament associé
     await Medicament.findByIdAndUpdate(
       approvisonement.medicament,
       { $inc: { stock: -approvisonement.quantity } },
       { new: true }
     );
+
+    await Approvisonement.findByIdAndDelete(req.params.id);
 
     return res
       .status(200)
