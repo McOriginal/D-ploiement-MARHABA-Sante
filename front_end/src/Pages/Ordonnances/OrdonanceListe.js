@@ -1,7 +1,7 @@
 import { Button, Card, CardBody, Col, Container, Row } from 'reactstrap';
 import Breadcrumbs from '../../components/Common/Breadcrumb';
 import LoadingSpiner from '../components/LoadingSpiner';
-import { capitalizeWords } from '../components/capitalizeFunction';
+import { capitalizeWords, formatPrice } from '../components/capitalizeFunction';
 import { Link } from 'react-router-dom';
 import { useAllOrdonnances } from '../../Api/queriesOrdonnance';
 import React, { useState } from 'react';
@@ -127,29 +127,38 @@ export default function OrdonnanceListe() {
               <Card>
                 <CardBody>
                   <div id='ordonnanceList'>
-                    {/* Barre de recherche */}
-                    <div className='d-flex justify-content-sm-end gap-3'>
-                      {searchTerm !== '' && (
-                        <Button
-                          color='warning'
-                          onClick={() => setSearchTerm('')}
-                        >
-                          {' '}
-                          <i className='fas fa-window-close'></i>{' '}
-                        </Button>
-                      )}
+                    <div className='d-flex justify-content-between align-items-center'>
+                      <div className='col-sm-auto'>
+                        <div className='d-flex align-items-center gap-2'>
+                          <h5 className='mb-0'>Total Ordonnances:</h5>
+                          <span className='badge bg-info'>
+                            {formatPrice(ordonnances?.length) || 0}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Barre de recherche */}
+                      <div className='d-flex justify-content-sm-end gap-3'>
+                        {searchTerm !== '' && (
+                          <Button
+                            color='warning'
+                            onClick={() => setSearchTerm('')}
+                          >
+                            {' '}
+                            <i className='fas fa-window-close'></i>{' '}
+                          </Button>
+                        )}
 
-                      <div className='search-box me-4'>
-                        <input
-                          type='text'
-                          className='form-control search border border-dark rounded'
-                          placeholder='Rechercher...'
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                        <div className='search-box me-4'>
+                          <input
+                            type='text'
+                            className='form-control search border border-dark rounded'
+                            placeholder='Rechercher...'
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                          />
+                        </div>
                       </div>
                     </div>
-
                     {/* Barre de recherche */}
                     <p className='text-center my-4 text-warning'>
                       Pour ajouter une Ordonnance vous devez retourner
@@ -186,6 +195,7 @@ export default function OrdonnanceListe() {
                           >
                             <thead className='table-light'>
                               <tr>
+                                <th scope='col' style={{ width: '50px' }}></th>
                                 <th scope='col' style={{ width: '50px' }}>
                                   Date d'ordonnance
                                 </th>
@@ -215,83 +225,86 @@ export default function OrdonnanceListe() {
                             </thead>
                             <tbody className='list form-check-all text-center'>
                               {filterSearchOrdonnanceData?.length > 0 &&
-                                filterSearchOrdonnanceData?.map((ordo) => (
-                                  <tr key={ordo?._id}>
-                                    <th scope='row'>
-                                      {new Date(
-                                        ordo?.createdAt
-                                      ).toLocaleDateString('fr-Fr', {
-                                        weekday: 'short',
-                                        year: 'numeric',
-                                        month: '2-digit',
-                                        day: '2-digit',
-                                      })}
-                                    </th>
-                                    <td>
-                                      {capitalizeWords(
-                                        ordo?.traitement?.patient?.firstName
-                                      )}{' '}
-                                      {capitalizeWords(
-                                        ordo?.traitement?.patient?.lastName
-                                      )}
-                                    </td>
-                                    <td>
-                                      {ordo?.traitement
-                                        ? capitalizeWords(
-                                            ordo?.traitement?.motif
-                                          )
-                                        : '-----'}
-                                    </td>
+                                filterSearchOrdonnanceData?.map(
+                                  (ordo, index) => (
+                                    <tr key={ordo?._id}>
+                                      <th scope='row'>{index + 1}</th>
+                                      <th>
+                                        {new Date(
+                                          ordo?.createdAt
+                                        ).toLocaleDateString('fr-Fr', {
+                                          weekday: 'short',
+                                          year: 'numeric',
+                                          month: '2-digit',
+                                          day: '2-digit',
+                                        })}
+                                      </th>
+                                      <td>
+                                        {capitalizeWords(
+                                          ordo?.traitement?.patient?.firstName
+                                        )}{' '}
+                                        {capitalizeWords(
+                                          ordo?.traitement?.patient?.lastName
+                                        )}
+                                      </td>
+                                      <td>
+                                        {ordo?.traitement
+                                          ? capitalizeWords(
+                                              ordo?.traitement?.motif
+                                            )
+                                          : '-----'}
+                                      </td>
 
-                                    <td>
-                                      {new Date(
-                                        ordo?.createdAt
-                                      ).toLocaleDateString('fr-Fr', {
-                                        weekday: 'short',
-                                        year: 'numeric',
-                                        month: '2-digit',
-                                        day: '2-digit',
-                                      })}{' '}
-                                    </td>
+                                      <td>
+                                        {new Date(
+                                          ordo?.createdAt
+                                        ).toLocaleDateString('fr-Fr', {
+                                          weekday: 'short',
+                                          year: 'numeric',
+                                          month: '2-digit',
+                                          day: '2-digit',
+                                        })}{' '}
+                                      </td>
 
-                                    <td>
-                                      {ordo?.items?.length} médicaments
-                                      {'  '}
-                                    </td>
+                                      <td>
+                                        {ordo?.items?.length} médicaments
+                                        {'  '}
+                                      </td>
 
-                                    <td>
-                                      <div className='d-flex gap-2'>
-                                        <div className='show-details'>
-                                          <button
-                                            className='btn btn-sm btn-warning show-item-btn'
-                                            data-bs-toggle='modal'
-                                            data-bs-target='#showdetails'
-                                            onClick={() =>
-                                              cancelOrdonnance(ordo)
-                                            }
-                                          >
-                                            Annuler
-                                          </button>
+                                      <td>
+                                        <div className='d-flex gap-2'>
+                                          <div className='show-details'>
+                                            <button
+                                              className='btn btn-sm btn-warning show-item-btn'
+                                              data-bs-toggle='modal'
+                                              data-bs-target='#showdetails'
+                                              onClick={() =>
+                                                cancelOrdonnance(ordo)
+                                              }
+                                            >
+                                              Annuler
+                                            </button>
+                                          </div>
+                                          <div className='show-details'>
+                                            <button
+                                              className='btn btn-sm btn-info show-item-btn'
+                                              data-bs-toggle='modal'
+                                              data-bs-target='#showdetails'
+                                              onClick={() => {
+                                                setSelectedOrdonnanceID(
+                                                  ordo?._id
+                                                );
+                                                tog_show_modal();
+                                              }}
+                                            >
+                                              <i className=' bx bx-show-alt text-white'></i>
+                                            </button>
+                                          </div>
                                         </div>
-                                        <div className='show-details'>
-                                          <button
-                                            className='btn btn-sm btn-info show-item-btn'
-                                            data-bs-toggle='modal'
-                                            data-bs-target='#showdetails'
-                                            onClick={() => {
-                                              setSelectedOrdonnanceID(
-                                                ordo?._id
-                                              );
-                                              tog_show_modal();
-                                            }}
-                                          >
-                                            <i className=' bx bx-show-alt text-white'></i>
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                ))}
+                                      </td>
+                                    </tr>
+                                  )
+                                )}
                             </tbody>
                           </table>
                         )}

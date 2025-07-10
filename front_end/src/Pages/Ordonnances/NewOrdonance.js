@@ -66,13 +66,13 @@ export default function NewOrdonance() {
     setOrdonnanceItems((prevCart) => {
       // On vérifie si le produit n'existe pas déjà
       const existingItem = prevCart.find(
-        (item) => item.ordonnance._id === ordonnance._id
+        (item) => item.ordonnance?._id === ordonnance?._id
       );
 
       //  Si le produit existe on incrémente la quantité
       if (existingItem) {
         return prevCart.map((item) =>
-          item.ordonnance._id === ordonnance._id
+          item.ordonnance?._id === ordonnance?._id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
@@ -89,7 +89,7 @@ export default function NewOrdonance() {
     setOrdonnanceItems((prevCart) =>
       prevCart
         .map((item) =>
-          item.ordonnance._id === ordonnanceId
+          item.ordonnance?._id === ordonnanceId
             ? { ...item, quantity: item.quantity - 1 }
             : item
         )
@@ -101,7 +101,7 @@ export default function NewOrdonance() {
   const increaseQuantity = (ordonnanceId) => {
     setOrdonnanceItems((prevCart) =>
       prevCart.map((item) =>
-        item.ordonnance._id === ordonnanceId
+        item.ordonnance?._id === ordonnanceId
           ? { ...item, quantity: item.quantity + 1 }
           : item
       )
@@ -115,7 +115,7 @@ export default function NewOrdonance() {
 
   // Fonction pour calculer le total des élements dans le panier
   const totalAmount = ordonnanceItems.reduce(
-    (total, item) => total + item.ordonnance.price * item.quantity,
+    (total, item) => total + item.ordonnance?.price * item.quantity,
     0
   );
 
@@ -126,13 +126,14 @@ export default function NewOrdonance() {
 
     // Vérification du stock pour chaque médicament
     const insufficientStockItems = ordonnanceItems.filter(
-      (item) => item.quantity > item.ordonnance.stock
+      (item) => item.quantity > item.ordonnance?.stock
     );
 
     if (insufficientStockItems.length > 0) {
       const names = insufficientStockItems
         .map(
-          (item) => `${item.ordonnance.name} (stock: ${item.ordonnance.stock})`
+          (item) =>
+            `${item.ordonnance?.name} (stock: ${item.ordonnance?.stock})`
         )
         .join(', ');
       errorMessageAlert(`Stock insuffisant pour : ${names}`);
@@ -143,7 +144,7 @@ export default function NewOrdonance() {
     setIsSubmitting(true);
     const payload = {
       items: ordonnanceItems.map((item) => ({
-        medicaments: item.ordonnance._id,
+        medicaments: item.ordonnance?._id,
         quantity: item.quantity,
       })),
       totalAmount,
@@ -167,7 +168,7 @@ export default function NewOrdonance() {
               err?.response?.data?.message ||
               err ||
               err?.message ||
-              "Erreur lors de la validation de l'Ordonnance.";
+              "Erreur lors de la validation de l'Ordonnance?.";
             errorMessageAlert(message);
             setIsSubmitting(false);
           },
@@ -178,7 +179,7 @@ export default function NewOrdonance() {
           err?.response?.data?.message ||
           err ||
           err?.message ||
-          "Erreur lors de la validation de l'Ordonnance.";
+          "Erreur lors de la validation de l'Ordonnance?.";
         errorMessageAlert(message);
         setIsSubmitting(false);
       },
@@ -189,13 +190,26 @@ export default function NewOrdonance() {
     <React.Fragment>
       <div className='page-content'>
         <Container fluid>
-          <Breadcrumbs title='Traitements' breadcrumbItem='Odonnances' />
+          <Breadcrumbs
+            title='Traitements'
+            breadcrumbItem='Nouvelle Odonnance'
+          />
 
-          <Row>
+          <Row className='flex-column-reverse flex-column-reverse flex-sm-row'>
             {/* Liste des produits */}
             <Col sm={7}>
               {/* Champ de Recherche */}
-              <div className='col-sm mb-4'>
+              <div className='col-sm my-4 jusftify-content-sm-between d-flex align-items-center gap-3 flex-wrap'>
+                {/* Total Médicaments */}
+                <Col className='col-sm-auto'>
+                  <div className='d-flex align-items-center gap-2'>
+                    <h5 className='mb-0'>Total Médicaments:</h5>
+                    <span className='badge bg-info'>
+                      {formatPrice(medicamentsData?.length) || 0}
+                    </span>
+                  </div>
+                </Col>
+                {/* Total Médicaments */}
                 <div className='d-flex justify-content-sm-end gap-3'>
                   {searchTerm !== '' && (
                     <Button color='warning' onClick={() => setSearchTerm('')}>
@@ -216,7 +230,7 @@ export default function NewOrdonance() {
               </div>
 
               {/* ----------------------------------------- */}
-              {/* ----------------------------------------- */}
+              {/* ------------- Liste de Médicaments---------------------------- */}
               {/* ----------------------------------------- */}
               <Card>
                 <CardBody>
@@ -239,7 +253,7 @@ export default function NewOrdonance() {
                     {!error &&
                       filterSearchMedicaments?.length > 0 &&
                       filterSearchMedicaments?.map((ordonnance) => (
-                        <Col md={3} sm={6} key={ordonnance._id}>
+                        <Col md={4} key={ordonnance?._id}>
                           <Card
                             className='shadow shadow-lg'
                             onClick={() => addToCart(ordonnance)}
@@ -251,32 +265,32 @@ export default function NewOrdonance() {
                                 objectFit: 'contain',
                               }}
                               src={
-                                ordonnance.imageUrl
-                                  ? ordonnance.imageUrl
+                                ordonnance?.imageUrl
+                                  ? ordonnance?.imageUrl
                                   : imgMedicament
                               }
-                              alt={ordonnance.name}
+                              alt={ordonnance?.name}
                             />
                             <CardBody>
                               <CardText className='text-center'>
-                                {capitalizeWords(ordonnance.name)}
+                                {capitalizeWords(ordonnance?.name)}
                               </CardText>
                               <CardText className='text-center fw-bold'>
                                 Stock:{' '}
-                                {ordonnance.stock >= 10 ? (
+                                {ordonnance?.stock >= 10 ? (
                                   <span className='text-primary'>
                                     {' '}
-                                    {ordonnance.stock}{' '}
+                                    {ordonnance?.stock}{' '}
                                   </span>
                                 ) : (
                                   <span className='text-danger'>
                                     {' '}
-                                    {ordonnance.stock}{' '}
+                                    {ordonnance?.stock}{' '}
                                   </span>
                                 )}
                               </CardText>
                               <CardText className='text-center fw-bold'>
-                                {formatPrice(ordonnance.price)} F
+                                {formatPrice(ordonnance?.price)} F
                               </CardText>
                             </CardBody>
                           </Card>
@@ -286,10 +300,10 @@ export default function NewOrdonance() {
                 </CardBody>
               </Card>
             </Col>
+
             {/* ------------------------------------------------------------- */}
+            {/* --------------------- Panier---------------------------------------- */}
             {/* ------------------------------------------------------------- */}
-            {/* ------------------------------------------------------------- */}
-            {/* Panier */}
 
             <Col sm={5}>
               {isSubmitting && <LoadingSpiner />}
@@ -343,7 +357,9 @@ export default function NewOrdonance() {
                         <div>
                           {item?.quantity} ×{' '}
                           {formatPrice(item?.ordonnance?.price)} F ={' '}
-                          {formatPrice(item?.ordonnance.price * item?.quantity)}{' '}
+                          {formatPrice(
+                            item?.ordonnance?.price * item?.quantity
+                          )}{' '}
                           F
                         </div>
                       </div>

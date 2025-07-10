@@ -105,7 +105,7 @@ const DepenseForm = ({ depenseToEdit, tog_form_modal }) => {
       <Row>
         <Col md='12'>
           <FormGroup className='mb-3'>
-            <Label htmlFor='motifDepense'>Motif de Depense</Label>
+            <Label htmlFor='motifDepense'>Motif de Dépense</Label>
 
             <Input
               name='motifDepense'

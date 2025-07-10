@@ -86,7 +86,7 @@ export default function MedicamentListe() {
               <Card>
                 <CardBody>
                   <div id='medicamentList'>
-                    <Row className='g-4 mb-3'>
+                    <Row className='g-4 mb-3 justify-content-between align-items-center'>
                       <Col className='col-sm-auto'>
                         <div className='d-flex gap-1'>
                           <Button
@@ -103,6 +103,16 @@ export default function MedicamentListe() {
                           </Button>
                         </div>
                       </Col>
+                      {/* Total Médicaments */}
+                      <Col className='col-sm-auto'>
+                        <div className='d-flex align-items-center gap-2'>
+                          <h5 className='mb-0'>Total Médicaments:</h5>
+                          <span className='badge bg-info'>
+                            {formatPrice(medicaments?.length) || 0}
+                          </span>
+                        </div>
+                      </Col>
+                      {/* Total Médicaments */}
                       <Col className='col-sm'>
                         <div className='d-flex justify-content-sm-end gap-3'>
                           {searchTerm !== '' && (
@@ -150,12 +160,12 @@ export default function MedicamentListe() {
                     style={{
                       boxShadow: '0px 0px 10px rgba(121,3,105,0.5)',
                       borderRadius: '15px',
-                      height: '120px',
+                      // height: '120px',
                       padding: '10px 20px',
                       display: 'flex',
                       gap: '20px',
-                      flexDirection: 'row',
-                      flexWrap: 'nowrap',
+                      // flexDirection: 'row',
+                      // flexWrap: 'nowrap',
                       alignItems: 'center',
                       position: 'relative',
                     }}

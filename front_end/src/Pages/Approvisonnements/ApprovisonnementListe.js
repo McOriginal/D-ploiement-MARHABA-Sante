@@ -41,6 +41,12 @@ export default function ApprovisonnementListe() {
     );
   });
 
+  // Somme Total Approvisonnement
+  const sumTotalApprovisonnement = approvisonnementData?.reduce(
+    (total, appro) => total + appro?.price,
+    0
+  );
+
   return (
     <React.Fragment>
       <div className='page-content'>
@@ -52,27 +58,44 @@ export default function ApprovisonnementListe() {
               <Card>
                 <CardBody>
                   <div id='approvisonnementList'>
-                    <div className='d-flex justify-content-sm-end gap-3'>
-                      {searchTerm !== '' && (
-                        <Button
-                          color='warning'
-                          onClick={() => setSearchTerm('')}
-                        >
-                          {' '}
-                          <i className='fas fa-window-close'></i>{' '}
-                        </Button>
-                      )}
-                      <div className='search-box me-4'>
-                        <input
-                          type='text'
-                          className='form-control search border border-dark rounded'
-                          placeholder='Rechercher...'
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                    <div className='d-flex justify-content-between align-items-center gap-3'>
+                      <div className='col-sm-auto'>
+                        <div className='d-flex align-items-center gap-2'>
+                          <h5 className='mb-0'>Nombre Total:</h5>
+                          <span className='badge bg-info'>
+                            {formatPrice(approvisonnementData?.length) || 0}
+                          </span>
+                        </div>
+                      </div>
+                      <div className='col-sm-auto'>
+                        <div className='d-flex align-items-center gap-2'>
+                          <h5 className='mb-0'>Total Dépensés:</h5>
+                          <span className='badge bg-warning'>
+                            {formatPrice(sumTotalApprovisonnement) || 0} F
+                          </span>
+                        </div>
+                      </div>
+                      <div className='d-flex justify-content-sm-end gap-3'>
+                        {searchTerm !== '' && (
+                          <Button
+                            color='warning'
+                            onClick={() => setSearchTerm('')}
+                          >
+                            {' '}
+                            <i className='fas fa-window-close'></i>{' '}
+                          </Button>
+                        )}
+                        <div className='search-box me-4'>
+                          <input
+                            type='text'
+                            className='form-control search border border-dark rounded'
+                            placeholder='Rechercher...'
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                          />
+                        </div>
                       </div>
                     </div>
-
                     {error && (
                       <div className='text-danger text-center'>
                         Erreur de chargement des données
@@ -104,7 +127,7 @@ export default function ApprovisonnementListe() {
                                 <th data-sort='marchandise'>
                                   Quantité arrivée
                                 </th>
-                                <th data-sort='price'>Prix d'achat</th>
+                                <th data-sort='price'>Prix Unitaire</th>
                                 <th data-sort='deliveryDate'>Date d'arrivée</th>
                                 <th data-sort='fournisseur_name'>
                                   Fournisseur

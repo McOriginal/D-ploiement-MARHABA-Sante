@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useCallback } from "react";
-import PropTypes from "prop-types";
-import withRouter from "../../components/Common/withRouter";
+import React, { useEffect, useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
+import withRouter from '../../components/Common/withRouter';
 
 //actions
 import {
@@ -9,16 +9,16 @@ import {
   changeTopbarTheme,
   changeLayoutWidth,
   showRightSidebarAction,
-} from "../../store/actions";
+} from '../../store/actions';
 
 //redux
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch } from 'react-redux';
 
 //components
-import Navbar from "./NavBar";
-import Header from "./Header";
-import Footer from "./Footer";
-import RightSidebar from "../../components/Common/RightSideBar";
+import Navbar from './NavBar';
+import Header from './Header';
+import Footer from './Footer';
+import RightSidebar from '../../components/Common/RightSideBar';
 
 import { createSelector } from 'reselect';
 
@@ -26,16 +26,17 @@ const Layout = (props) => {
   const dispatch = useDispatch();
 
   const horizontallayout = createSelector(
-    (state ) => state.Layout,
+    (state) => state.Layout,
     (layout) => ({
-        topbarTheme: layout.topbarTheme,
-        layoutWidth: layout.layoutWidth,
-        showRightSidebar: layout.showRightSidebar,
-        layoutModeTypes: layout.layoutModeTypes
+      topbarTheme: layout.topbarTheme,
+      layoutWidth: layout.layoutWidth,
+      showRightSidebar: layout.showRightSidebar,
+      layoutModeTypes: layout.layoutModeTypes,
     })
   );
-// Inside your component
-const { topbarTheme, layoutWidth, showRightSidebar, layoutModeTypes } = useSelector(horizontallayout);
+  // Inside your component
+  const { topbarTheme, layoutWidth, showRightSidebar, layoutModeTypes } =
+    useSelector(horizontallayout);
 
   /*
   document title
@@ -44,7 +45,7 @@ const { topbarTheme, layoutWidth, showRightSidebar, layoutModeTypes } = useSelec
     const title = props.router.location.pathname;
     let currentage = title.charAt(1).toUpperCase() + title.slice(2);
 
-    document.title = currentage + " | Upzet - React Admin & Dashboard Template";
+    document.title = currentage + ' | MARHABA SANTE';
   }, [props.router.location.pathname]);
 
   useEffect(() => {
@@ -54,7 +55,7 @@ const { topbarTheme, layoutWidth, showRightSidebar, layoutModeTypes } = useSelec
   //hides right sidebar on body click
   const hideRightbar = useCallback(
     (event) => {
-      var rightbar = document.getElementById("right-bar");
+      var rightbar = document.getElementById('right-bar');
       //if clicked in inside right bar, then do nothing
       if (rightbar && rightbar.contains(event.target)) {
         return;
@@ -70,12 +71,12 @@ const { topbarTheme, layoutWidth, showRightSidebar, layoutModeTypes } = useSelec
   layout settings
   */
   useEffect(() => {
-    dispatch(changeLayout("horizontal"));
+    dispatch(changeLayout('horizontal'));
   }, [dispatch]);
 
   useEffect(() => {
     //init body click event fot toggle rightbar
-    document.body.addEventListener("click", hideRightbar, true);
+    document.body.addEventListener('click', hideRightbar, true);
   }, [hideRightbar]);
 
   useEffect(() => {
@@ -103,15 +104,14 @@ const { topbarTheme, layoutWidth, showRightSidebar, layoutModeTypes } = useSelec
 
   return (
     <React.Fragment>
-
-      <div id="layout-wrapper">
+      <div id='layout-wrapper'>
         <Header
           theme={topbarTheme}
           isMenuOpened={isMenuOpened}
           openLeftMenuCallBack={openMenu}
         />
         <Navbar />
-        <div className="main-content">{props.children}</div>
+        <div className='main-content'>{props.children}</div>
         <Footer />
       </div>
 

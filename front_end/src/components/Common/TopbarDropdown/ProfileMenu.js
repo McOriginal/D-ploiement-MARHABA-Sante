@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   Dropdown,
@@ -8,37 +8,14 @@ import {
 } from 'reactstrap';
 
 //i18n
-import { withTranslation } from 'react-i18next';
 // Redux
-import { connect } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import withRouter from '../withRouter';
 
 import { AuthContext } from '../../../Auth/AuthContext';
 import { connectedUserName } from '../../../Pages/Authentication/userInfos';
 
-const ProfileMenu = (props) => {
+const ProfileMenu = () => {
   // Declare a new state variable, which we'll call "menu"
   const [menu, setMenu] = useState(false);
-
-  const [username, setusername] = useState('Admin');
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (localStorage.getItem('authUser')) {
-      if (process.env.REACT_APP_DEFAULTAUTH === 'firebase') {
-        const obj = JSON.parse(localStorage.getItem('authUser'));
-        setusername(obj.displayName);
-      } else if (
-        process.env.REACT_APP_DEFAULTAUTH === 'fake' ||
-        process.env.REACT_APP_DEFAULTAUTH === 'jwt'
-      ) {
-        const obj = JSON.parse(localStorage.getItem('authUser'));
-        setusername(obj.username);
-      }
-    }
-  }, [props.success]);
 
   const { logout } = useContext(AuthContext);
   // const handleLogout = logout();
@@ -64,7 +41,7 @@ const ProfileMenu = (props) => {
           <DropdownItem tag='a' href='/userprofile'>
             {' '}
             <i className='ri-user-line align-middle me-2' />
-            {props.t('Profile')}{' '}
+            Profile
           </DropdownItem>
 
           <div className='dropdown-divider' />
@@ -86,11 +63,4 @@ ProfileMenu.propTypes = {
   t: PropTypes.any,
 };
 
-const mapStatetoProps = (state) => {
-  const { error, success } = state.profile;
-  return { error, success };
-};
-
-export default withRouter(
-  connect(mapStatetoProps, {})(withTranslation()(ProfileMenu))
-);
+export default ProfileMenu;

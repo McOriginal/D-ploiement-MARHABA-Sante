@@ -96,7 +96,7 @@ export default function FactureListe() {
         <Container fluid>
           <Breadcrumbs
             title='Transactions'
-            breadcrumbItem='Liste de Factures'
+            breadcrumbItem='Historique des Paiements'
           />
 
           {error && (
@@ -174,7 +174,7 @@ export default function FactureListe() {
                           style={{ fontSize: '15px', margin: '35px 0' }}
                         >
                           <strong> Date:</strong>{' '}
-                          {new Date(paiement.createdAt).toLocaleDateString()}
+                          {new Date(paiement?.createdAt).toLocaleDateString()}
                         </CardText>
                         <CardImg
                           src={logoMedical}
@@ -189,23 +189,23 @@ export default function FactureListe() {
                       <h4 className='text-center'>Réçu</h4>
                       <div className='d-flex justify-content-around align-item-center'>
                         <div className='my-2 '>
-                          <h6 style={{ marginBottom: '20px' }}>Patient(e)</h6>
+                          <h6 style={{ marginBottom: '20px' }}>Patient</h6>
                           <CardText>
                             {capitalizeWords(
-                              paiement?.traitement['patient'].firstName
+                              paiement?.traitement?.patient?.firstName
                             )}{' '}
                             {capitalizeWords(
-                              paiement?.traitement['patient'].lastName
+                              paiement?.traitement?.patient?.lastName
                             )}
                           </CardText>
                           <CardText>
                             {new Date(
-                              paiement?.traitement['patient'].dateOfBirth
+                              paiement?.traitement?.patient?.dateOfBirth
                             ).toLocaleDateString()}
                           </CardText>
                           <CardText>
                             {capitalizeWords(
-                              paiement?.traitement['patient'].gender
+                              paiement?.traitement?.patient?.gender
                             )}
                           </CardText>
                         </div>
@@ -224,11 +224,11 @@ export default function FactureListe() {
                           <h6 style={{ marginBottom: '20px' }}>Traitement</h6>
                           <CardText>
                             <strong> Maladie: </strong>{' '}
-                            {capitalizeWords(paiement?.traitement['motif'])}
+                            {capitalizeWords(paiement?.traitement?.motif)}
                           </CardText>
                           <CardText>
                             {new Date(
-                              paiement?.traitement['createdAt']
+                              paiement?.traitement?.createdAt
                             ).toLocaleDateString('fr-Fr', {
                               weekday: 'long',
                               year: 'numeric',
@@ -267,7 +267,7 @@ export default function FactureListe() {
                             <strong style={{ fontSize: '14px' }}>
                               {' '}
                               {formatPrice(
-                                paiement.totalAmount - paiement?.totalPaye
+                                paiement?.totalAmount - paiement?.totalPaye
                               )}{' '}
                               F{' '}
                             </strong>

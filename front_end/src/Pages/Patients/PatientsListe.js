@@ -8,12 +8,13 @@ import LoadingSpiner from '../components/LoadingSpiner';
 import {
   capitalizeWords,
   formatPhoneNumber,
+  formatPrice,
 } from '../components/capitalizeFunction';
 import { deleteButton } from '../components/AlerteModal';
 
 export default function PatientsListe() {
   const [form_modal, setForm_modal] = useState(false);
-  const { data, isLoading, error } = useAllPatients();
+  const { data: patientListe, isLoading, error } = useAllPatients();
   const { mutate: deletePatient, isLoading: isDeleting } = useDeletePatient();
   const [patientToUpdate, setpatientToUpdate] = useState(null);
   const [formModalTitle, setFormModalTitle] = useState('Ajouter un Patient');
@@ -22,7 +23,7 @@ export default function PatientsListe() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Fonction pour filtrer les patients en fonction du terme de recherche
-  const filteredPatients = data?.filter((patient) => {
+  const filteredPatients = patientListe?.filter((patient) => {
     const search = searchTerm.toLowerCase();
     return (
       `${patient?.firstName || ''} ${patient?.lastName || ''}`
@@ -66,7 +67,7 @@ export default function PatientsListe() {
               <Card>
                 <CardBody>
                   <div id='patientList'>
-                    <Row className='g-4 mb-3'>
+                    <Row className='g-4 mb-3 d-flex justify-content-between align-items-center'>
                       <Col className='col-sm-auto'>
                         <div className='d-flex gap-1'>
                           <Button
@@ -80,6 +81,14 @@ export default function PatientsListe() {
                             <i className='fas fa-procedures align-center me-1'></i>{' '}
                             Nouveau Patient
                           </Button>
+                        </div>
+                      </Col>
+                      <Col className='col-sm-auto'>
+                        <div className='d-flex align-items-center gap-2'>
+                          <h5 className='mb-0'>Total Patients:</h5>
+                          <span className='badge bg-info'>
+                            {formatPrice(patientListe?.length) || 0}
+                          </span>
                         </div>
                       </Col>
                       <Col className='col-sm'>

@@ -48,6 +48,19 @@ export default function PaiementsListe() {
   function tog_form_modal() {
     setForm_modal(!form_modal);
   }
+
+  // Total Reçu
+  const sumTotalRecu = paiementsData?.reduce((acc, item) => {
+    const sum = item?.totalAmount || 0;
+    return acc + sum;
+  }, 0);
+
+  // Total Payés
+  const sumTotalPaye = paiementsData?.reduce((acc, item) => {
+    const sum = item?.totalPaye || 0;
+    return acc + sum;
+  }, 0);
+
   return (
     <React.Fragment>
       <div className='page-content'>
@@ -116,6 +129,33 @@ export default function PaiementsListe() {
                         </div>
                       </Col>
                     </Row>
+                    <Row className='g-4 my-4 align-items-center justify-content-between'>
+                      <Col className='col-sm-auto'>
+                        <div className='d-flex align-items-center gap-2'>
+                          <h5 className='mb-0'>Total à Payez:</h5>
+                          <span className='badge bg-warning'>
+                            {formatPrice(sumTotalRecu)} F
+                          </span>
+                        </div>
+                      </Col>
+                      <Col className='col-sm-auto'>
+                        <div className='d-flex align-items-center gap-2'>
+                          <h5 className='mb-0'>Total Payés:</h5>
+                          <span className='badge bg-success'>
+                            {formatPrice(sumTotalPaye)} F
+                          </span>
+                        </div>
+                      </Col>
+                      <Col className='col-sm-auto'>
+                        <div className='d-flex align-items-center gap-2'>
+                          <h5 className='mb-0'>Non Payés:</h5>
+                          <span className='badge bg-danger'>
+                            {formatPrice(sumTotalRecu - sumTotalPaye)} F
+                          </span>
+                        </div>
+                      </Col>
+                    </Row>
+
                     {error && (
                       <div className='text-danger text-center'>
                         Erreur de chargement des données
@@ -138,6 +178,7 @@ export default function PaiementsListe() {
                           >
                             <thead className='table-light border-bottom border-secondary'>
                               <tr>
+                                <th style={{ width: '50px' }}></th>
                                 <th
                                   style={{ width: '50px' }}
                                   data-sort='paiementDate'
@@ -151,13 +192,14 @@ export default function PaiementsListe() {
                                 <th data-sort='traitement'>Maladie Traitée</th>
 
                                 <th data-sort='totaAmount'>Somme Total</th>
+                                <th data-sort='reduction'>Réduction</th>
+
                                 <th className='sort' data-sort='totaPayer'>
                                   Somme Payé
                                 </th>
                                 <th className='sort' data-sort='reliqua'>
                                   Réliqua
                                 </th>
-                                <th data-sort='motif'>Réduction</th>
 
                                 <th data-sort='action'>Action</th>
                               </tr>
@@ -165,12 +207,14 @@ export default function PaiementsListe() {
 
                             <tbody className='list form-check-all text-center'>
                               {filterSearchPaiement?.length > 0 &&
-                                filterSearchPaiement?.map((paiement) => (
+                                filterSearchPaiement?.map((paiement, index) => (
                                   <tr
                                     key={paiement?._id}
                                     className='text-center border-bottom border-secondary'
                                   >
-                                    <th scope='row'>
+                                    <th scope='row'>{index + 1}</th>
+
+                                    <th>
                                       {new Date(
                                         paiement?.paiementDate
                                       ).toLocaleDateString()}
@@ -200,13 +244,16 @@ export default function PaiementsListe() {
 
                                     <td>
                                       {capitalizeWords(
-                                        paiement?.traitement['motif']
+                                        paiement?.traitement?.motif
                                       )}
                                     </td>
 
                                     <td>
                                       {formatPrice(paiement?.totalAmount)}
                                       {' F '}
+                                    </td>
+                                    <td className='text-warning'>
+                                      {formatPrice(paiement?.reduction)} F
                                     </td>
                                     <td>
                                       {formatPrice(paiement?.totalPaye)}
@@ -234,9 +281,6 @@ export default function PaiementsListe() {
                                           {' F '}
                                         </span>
                                       )}
-                                    </td>
-                                    <td className='text-warning'>
-                                      {formatPrice(paiement?.reduction)} F
                                     </td>
 
                                     <td>

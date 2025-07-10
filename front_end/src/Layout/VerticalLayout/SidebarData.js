@@ -4,7 +4,7 @@ const SidebarData = [
     isMainMenu: true,
   },
   {
-    label: 'Dashboard',
+    label: 'Tableau de Bord',
     icon: 'mdi mdi-home-variant-outline',
     isHasArrow: true,
     url: '/dashboard',
@@ -55,7 +55,7 @@ const SidebarData = [
     icon: 'fas fa-euro-sign',
     subItem: [
       { sublabel: 'Paiement', link: '/paiements' },
-      { sublabel: 'Liste Factures', link: '/factures' },
+      { sublabel: 'Historique des Paiements', link: '/factures' },
       { sublabel: 'Dépense', link: '/depenses' },
     ],
   },

@@ -25,6 +25,7 @@ import LoadingSpiner from '../components/LoadingSpiner';
 import {
   capitalizeWords,
   formatPhoneNumber,
+  formatPrice,
 } from '../components/capitalizeFunction';
 import img1 from '../../assets/images/t1.jpg';
 import img2 from '../../assets/images/t2.jpg';
@@ -112,7 +113,7 @@ export default function TraitementsListe() {
               <Card>
                 <CardBody>
                   <div id='traitementList'>
-                    <Row className='g-4 mb-3'>
+                    <Row className='g-4 mb-3 d-flex justify-content-between align-items-center'>
                       <Col className='col-sm-auto'>
                         <div className='d-flex gap-1'>
                           <Button
@@ -128,6 +129,14 @@ export default function TraitementsListe() {
                             <i className='fas fa-heartbeat align-center me-1'></i>{' '}
                             Ajouter un Traitement
                           </Button>
+                        </div>
+                      </Col>
+                      <Col className='col-sm-auto'>
+                        <div className='d-flex align-items-center gap-2'>
+                          <h5 className='mb-0'>Total Traitements:</h5>
+                          <span className='badge bg-info'>
+                            {formatPrice(traitements?.length) || 0}
+                          </span>
                         </div>
                       </Col>
                       <Col className='col-sm'>

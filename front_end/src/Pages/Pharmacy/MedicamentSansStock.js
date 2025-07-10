@@ -53,7 +53,10 @@ export default function MedicamentSansStock() {
     <React.Fragment>
       <div className='page-content'>
         <Container fluid>
-          <Breadcrumbs title='Pharmacie' breadcrumbItem='Médicaments' />
+          <Breadcrumbs
+            title='Pharmacie'
+            breadcrumbItem='Médicaments en Stock Faible'
+          />
 
           <Row>
             <Col lg={12}>
@@ -87,7 +90,10 @@ export default function MedicamentSansStock() {
                   </div>
 
                   <p className='text-center'>
-                    Liste des médicaments sans <strong>Stock</strong>
+                    <strong className='text-danger'>
+                      {formatPrice(medicaments?.length) || 0}{' '}
+                    </strong>{' '}
+                    Médicaments en Stock Faible
                   </p>
                 </CardBody>
               </Card>
@@ -112,12 +118,9 @@ export default function MedicamentSansStock() {
                     style={{
                       boxShadow: '0px 0px 10px rgba(121,3,105,0.5)',
                       borderRadius: '15px',
-                      height: '120px',
                       padding: '10px 20px',
                       display: 'flex',
                       gap: '20px',
-                      flexDirection: 'row',
-                      flexWrap: 'nowrap',
                       alignItems: 'center',
                       position: 'relative',
                     }}

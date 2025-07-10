@@ -203,8 +203,7 @@ const Login = () => {
                                 <div className='show-details '>
                                   <button
                                     className='btn btn-sm btn-secondary show-item-btn'
-                                    data-bs-toggle='modal'
-                                    data-bs-target='#showdetails'
+                                    type='button'
                                     onClick={handleShowPassword}
                                   >
                                     {showPassword ? (

@@ -7,6 +7,7 @@ import SelectedMounthTotalTraitement from './SelectedMounthTotalTraitement';
 import RapportByDay from './RapportByDay';
 import RapportBySemaine from './RapportBySemaine';
 import BarChartPatientsTraitement from './DataRaportsPatientsTraitement';
+import BarChartApprovisonnement from './DataRaportsApprovisonnement';
 
 const Rapports = () => {
   document.title = 'Raports | Centre de Santé - MARHABA ';
@@ -47,6 +48,15 @@ const Rapports = () => {
                     dépenses mensuelles.
                   </p>
                   <BarChartEntreSortie />
+                </CardBody>
+              </Card>
+            </Col>
+            <Col sm={12}>
+              <Card>
+                <CardBody>
+                  <CardTitle>Approvisonnement</CardTitle>
+
+                  <BarChartApprovisonnement />
                 </CardBody>
               </Card>
             </Col>

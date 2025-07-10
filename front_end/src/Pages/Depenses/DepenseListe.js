@@ -24,9 +24,9 @@ export default function DepenseListe() {
     const search = searchTerm.toLowerCase();
 
     return (
-      depense.motifDepense.toLowerCase().includes(search) ||
-      depense.totalAmount.toString().includes(search) ||
-      new Date(depense.dateOfDepense)
+      depense?.motifDepense?.toLowerCase().includes(search) ||
+      depense?.totalAmount.toString().includes(search) ||
+      new Date(depense?.dateOfDepense)
         .toLocaleDateString('fr-Fr')
         .toString()
         .includes(search)
@@ -37,6 +37,12 @@ export default function DepenseListe() {
   function tog_form_modal() {
     setForm_modal(!form_modal);
   }
+
+  // Calcule de Total Depensés
+  const sumTotalDepense = depenseData?.reduce((acc, depense) => {
+    return acc + depense?.totalAmount;
+  }, 0);
+
   return (
     <React.Fragment>
       <div className='page-content'>
@@ -64,7 +70,7 @@ export default function DepenseListe() {
               <Card>
                 <CardBody>
                   <div id='depenseList'>
-                    <Row className='g-4 mb-3'>
+                    <Row className='g-4 mb-3 d-flex justify-content-between align-items-center'>
                       <Col className='col-sm-auto'>
                         <div className='d-flex gap-1'>
                           <Button
@@ -79,6 +85,14 @@ export default function DepenseListe() {
                             <i className='fas fa-dollar-sign align-center me-1'></i>{' '}
                             Ajouter une Dépense
                           </Button>
+                        </div>
+                      </Col>
+                      <Col className='col-sm-auto'>
+                        <div className='d-flex align-items-center gap-2'>
+                          <h5 className='mb-0'>Total Dépensés:</h5>
+                          <span className='badge bg-warning'>
+                            {formatPrice(sumTotalDepense)} F
+                          </span>
                         </div>
                       </Col>
                       <Col className='col-sm'>
@@ -110,7 +124,7 @@ export default function DepenseListe() {
                       )}
                       {!error &&
                         !isLoading &&
-                        filterSearchDepense.length > 0 && (
+                        filterSearchDepense?.length > 0 && (
                           <table
                             className='table align-middle table-nowrap'
                             id='depenseTable'
@@ -136,19 +150,19 @@ export default function DepenseListe() {
                             <tbody className='list form-check-all'>
                               {filterSearchDepense?.length > 0 &&
                                 filterSearchDepense?.map((depense) => (
-                                  <tr key={depense._id}>
+                                  <tr key={depense?._id}>
                                     <td>
                                       {new Date(
-                                        depense.dateOfDepense
+                                        depense?.dateOfDepense
                                       ).toLocaleDateString()}{' '}
                                     </td>
 
                                     <td>
-                                      {capitalizeWords(depense.motifDepense)}
+                                      {capitalizeWords(depense?.motifDepense)}
                                     </td>
 
                                     <td className='text-danger'>
-                                      {formatPrice(depense.totalAmount)}
+                                      {formatPrice(depense?.totalAmount)}
                                       {' F '}
                                     </td>
 
@@ -177,8 +191,8 @@ export default function DepenseListe() {
                                               data-bs-target='#deleteRecordModal'
                                               onClick={() => {
                                                 deleteButton(
-                                                  depense._id,
-                                                  `depense de ${depense.totalAmount} F
+                                                  depense?._id,
+                                                  `depense de ${depense?.totalAmount} F
                                                    `,
                                                   deleteDepense
                                                 );
