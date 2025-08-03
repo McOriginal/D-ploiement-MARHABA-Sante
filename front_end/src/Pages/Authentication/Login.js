@@ -23,7 +23,7 @@ import {
   successMessageAlert,
 } from '../components/AlerteModal';
 import LoadingSpiner from '../components/LoadingSpiner';
-import { logoMedical } from '../Logo/logo';
+import { hospitalName, logoMedical } from '../Logo/logo';
 
 const Login = () => {
   document.title = 'Connexion | Santé MARHABA ';
@@ -132,7 +132,7 @@ const Login = () => {
                         />
                       </div>
                       <h4 className='font-size-18 text-info mt-2 text-center'>
-                        Cabinet de soins MARHABA Santé
+                        {hospitalName}
                       </h4>
                       <p className='my-3 text-center'>
                         Entrez vos coordonnées pour vous connecter à votre
@@ -215,19 +215,16 @@ const Login = () => {
                                 </div>
                               </div>
                             </div>
-                            <Row>
-                              <Col className='col-7'>
-                                <div className='text-md-end mt-3 mt-md-0'>
-                                  <Link
-                                    to='/forgotPassword'
-                                    className='text-warning'
-                                  >
-                                    <i className='mdi mdi-lock'></i> Mot de
-                                    passe oubliée !
-                                  </Link>
-                                </div>
-                              </Col>
-                            </Row>
+                            <div className='text-md-center mt-3 mt-md-0'>
+                              <Link
+                                to='/forgotPassword'
+                                className='text-warning'
+                              >
+                                <i className='mdi mdi-lock'></i> Mot de passe
+                                oublié ?
+                              </Link>
+                            </div>
+
                             <div className='d-grid mt-4'>
                               {isLoading ? (
                                 <LoadingSpiner />
