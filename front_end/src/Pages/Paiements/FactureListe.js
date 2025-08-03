@@ -191,6 +191,7 @@ export default function FactureListe() {
                         <div className='my-2 '>
                           <h6 style={{ marginBottom: '20px' }}>Patient</h6>
                           <CardText>
+                            <strong>Nom et Prénom: </strong>
                             {capitalizeWords(
                               paiement?.traitement?.patient?.firstName
                             )}{' '}
@@ -199,13 +200,15 @@ export default function FactureListe() {
                             )}
                           </CardText>
                           <CardText>
-                            {new Date(
-                              paiement?.traitement?.patient?.dateOfBirth
-                            ).toLocaleDateString()}
-                          </CardText>
-                          <CardText>
+                            <strong> Sexe: </strong>
                             {capitalizeWords(
                               paiement?.traitement?.patient?.gender
+                            )}
+                          </CardText>
+                          <CardText>
+                            <strong>Age: </strong>
+                            {capitalizeWords(
+                              paiement?.traitement?.patient?.age
                             )}
                           </CardText>
                         </div>
@@ -227,6 +230,7 @@ export default function FactureListe() {
                             {capitalizeWords(paiement?.traitement?.motif)}
                           </CardText>
                           <CardText>
+                            <strong>Date de Traitement: </strong>
                             {new Date(
                               paiement?.traitement?.createdAt
                             ).toLocaleDateString('fr-Fr', {

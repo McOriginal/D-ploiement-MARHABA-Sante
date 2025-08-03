@@ -210,7 +210,7 @@ export default function FactureDetails() {
                       {capitalizeWords(selectedPaiement?.traitement?.motif)}
                     </CardText>
                     <CardText>
-                      <strong>Date de Maladie : </strong>
+                      <strong>Date de Traitement : </strong>
                       {new Date(
                         selectedPaiement?.traitement?.createdAt
                       ).toLocaleDateString('fr-Fr', {
@@ -243,10 +243,7 @@ export default function FactureDetails() {
                       Payé:
                       <strong style={{ fontSize: '14px' }}>
                         {' '}
-                        {formatPrice(
-                          selectedPaiement?.traitement?.totalAmount
-                        )}{' '}
-                        F{' '}
+                        {formatPrice(selectedPaiement?.totalPaye)} F{' '}
                       </strong>{' '}
                     </CardText>
                     <CardText className='text-center '>
@@ -255,7 +252,7 @@ export default function FactureDetails() {
                         {' '}
                         {formatPrice(
                           selectedPaiement?.totalAmount -
-                            selectedPaiement?.traitement?.totalAmount
+                            selectedPaiement?.totalPaye
                         )}{' '}
                         F{' '}
                       </strong>

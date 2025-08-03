@@ -145,7 +145,7 @@ const OrdonnanceDetails = ({
                 boxShadow: '0px 0px 10px rgba(100, 169, 238, 0.5)',
                 borderRadius: '15px',
                 width: '583px',
-                height: '827px',
+                // height: '827px',
                 margin: '20px auto',
                 position: 'relative',
               }}
@@ -218,9 +218,11 @@ const OrdonnanceDetails = ({
                       (medi, index) => (
                         <li
                           key={index}
-                          className='border-2 border-grey border-bottom py-2  text-center'
+                          className='border-2 border-grey border-bottom py-2  '
                         >
-                          {formatPrice(medi?.quantity)} {' => '}
+                          <strong>
+                            {formatPrice(medi?.quantity)} {' => '}
+                          </strong>
                           {capitalizeWords(medi?.medicaments?.name)}
                           <span className='mx-2'>
                             {' '}
@@ -230,7 +232,10 @@ const OrdonnanceDetails = ({
                           </span>
                           <strong className='ms-4 text-primary'>
                             {' '}
-                            {formatPrice(medi?.medicaments?.price)} F
+                            {formatPrice(
+                              medi?.medicaments?.price * medi?.quantity
+                            )}{' '}
+                            F
                           </strong>
                         </li>
                       )

@@ -544,7 +544,7 @@ export default function TraitementDetails() {
             traitementOrdonnance.ordonnances?.ordonnance.length > 0 &&
             traitementOrdonnance.ordonnances?.ordonnance.map((ordo) => (
               <div
-                key={ordo._id}
+                key={ordo?._id}
                 className='mx-5 d-flex justify-content-center'
                 id={'ordonnaceMedical'}
               >
@@ -553,7 +553,7 @@ export default function TraitementDetails() {
                     boxShadow: '0px 0px 10px rgba(100, 169, 238, 0.5)',
                     borderRadius: '15px',
                     width: '583px',
-                    height: '827px',
+                    // height: '827px',
                     margin: '20px auto',
                     position: 'relative',
                   }}
@@ -583,7 +583,7 @@ export default function TraitementDetails() {
                       </CardTitle>
                       <CardText>
                         <strong> Date d'Ordonnance:</strong>{' '}
-                        {new Date(ordo.createdAt).toLocaleDateString()}
+                        {new Date(ordo?.createdAt).toLocaleDateString()}
                       </CardText>
                       <CardImg
                         src={logoMedical}
@@ -603,22 +603,19 @@ export default function TraitementDetails() {
                       <CardText>
                         <strong> Nom et Prénom:</strong>{' '}
                         {capitalizeWords(
-                          traitementOrdonnance?.ordonnances?.trait?.patient[
-                            'firstName'
-                          ]
+                          traitementOrdonnance?.ordonnances?.trait?.patient
+                            ?.firstName
                         )}{' '}
                         {capitalizeWords(
-                          traitementOrdonnance?.ordonnances?.trait?.patient[
-                            'lastName'
-                          ]
+                          traitementOrdonnance?.ordonnances?.trait?.patient
+                            ?.lastName
                         )}
                       </CardText>
                       <CardText>
                         <strong> Sexe:</strong>{' '}
                         {capitalizeWords(
-                          traitementOrdonnance?.ordonnances?.trait?.patient[
-                            'gender'
-                          ]
+                          traitementOrdonnance?.ordonnances?.trait?.patient
+                            ?.gender
                         )}
                       </CardText>
                     </div>
@@ -631,10 +628,13 @@ export default function TraitementDetails() {
                         {ordo?.items.map((medi, index) => (
                           <li
                             key={index}
-                            className='border-2 border-grey border-bottom py-2  text-center'
+                            className='border-2 border-grey border-bottom py-2'
                           >
-                            {formatPrice(medi.quantity)} {' => '}
-                            {capitalizeWords(medi.medicaments['name'])}
+                            <strong>
+                              {' '}
+                              {formatPrice(medi?.quantity)} {' => '}
+                            </strong>
+                            {capitalizeWords(medi?.medicaments?.name)}
                             <span className='mx-2'>
                               {' '}
                               {capitalizeWords(
@@ -643,7 +643,10 @@ export default function TraitementDetails() {
                             </span>
                             <strong className='ms-4 text-primary'>
                               {' '}
-                              {formatPrice(medi.medicaments['price'])} F
+                              {formatPrice(
+                                medi?.quantity * medi?.medicaments?.price
+                              )}{' '}
+                              F
                             </strong>
                           </li>
                         ))}
@@ -655,18 +658,18 @@ export default function TraitementDetails() {
                     <div className='d-flex justify-content-around align-item-center'>
                       <CardText style={{ fontSize: '12px' }}>
                         <strong> Total Médicaments: </strong>{' '}
-                        {formatPrice(ordo.totalAmount)} FCFA
+                        {formatPrice(ordo?.totalAmount)} FCFA
                       </CardText>
                       <CardText style={{ fontSize: '12px' }}>
                         <strong> Total Traitement: </strong>{' '}
-                        {formatPrice(ordo.traitement['totalAmount'])} FCFA
+                        {formatPrice(ordo?.traitement?.totalAmount)} FCFA
                       </CardText>
                     </div>
                     <CardText className='text-center p-3'>
                       <strong> Total Général: </strong>{' '}
                       <span className='fs-5'>
                         {formatPrice(
-                          ordo.traitement['totalAmount'] + ordo.totalAmount
+                          ordo?.traitement?.totalAmount + ordo?.totalAmount
                         )}{' '}
                         FCFA
                       </span>
