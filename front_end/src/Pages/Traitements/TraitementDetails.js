@@ -631,20 +631,27 @@ export default function TraitementDetails() {
                             className='border-2 border-grey border-bottom py-2'
                           >
                             <strong>
-                              {' '}
                               {formatPrice(medi?.quantity)} {' => '}
                             </strong>
                             {capitalizeWords(medi?.medicaments?.name)}
                             <span className='mx-2'>
                               {' '}
-                              {capitalizeWords(
-                                ' --------------------------/ jour'
-                              )}
+                              {capitalizeWords(' -------------------------- ')}
                             </span>
+                            <strong className='ms-4 text-dark'>
+                              {' '}
+                              {formatPrice(
+                                medi?.customerPrice || medi?.medicaments?.price
+                              ) +
+                                'f x ' +
+                                medi?.quantity}
+                              {' = '}
+                            </strong>
                             <strong className='ms-4 text-primary'>
                               {' '}
                               {formatPrice(
-                                medi?.quantity * medi?.medicaments?.price
+                                medi?.customerPrice * medi?.quantity ||
+                                  medi?.medicaments?.price * medi?.quantity
                               )}{' '}
                               F
                             </strong>

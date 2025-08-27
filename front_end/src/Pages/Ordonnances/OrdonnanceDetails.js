@@ -226,14 +226,22 @@ const OrdonnanceDetails = ({
                           {capitalizeWords(medi?.medicaments?.name)}
                           <span className='mx-2'>
                             {' '}
-                            {capitalizeWords(
-                              ' --------------------------/ jour'
-                            )}
+                            {capitalizeWords(' -------------------------- ')}
                           </span>
+                          <strong className='ms-4 text-dark'>
+                            {' '}
+                            {formatPrice(
+                              medi?.customerPrice || medi?.medicaments?.price
+                            ) +
+                              'f x ' +
+                              medi?.quantity}
+                            {' = '}
+                          </strong>
                           <strong className='ms-4 text-primary'>
                             {' '}
                             {formatPrice(
-                              medi?.medicaments?.price * medi?.quantity
+                              medi?.customerPrice * medi?.quantity ||
+                                medi?.medicaments?.price * medi?.quantity
                             )}{' '}
                             F
                           </strong>

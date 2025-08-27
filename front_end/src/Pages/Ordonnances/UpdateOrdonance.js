@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   Card,
@@ -15,29 +15,34 @@ import Breadcrumbs from '../../components/Common/Breadcrumb';
 import LoadingSpiner from '../components/LoadingSpiner';
 import { capitalizeWords, formatPrice } from '../components/capitalizeFunction';
 import { useAllMedicament } from '../../Api/queriesMedicament';
-import { useCreateOrdonnance } from '../../Api/queriesOrdonnance';
+import {
+  useOneOrdonnance,
+  useUpdateOrdonnance,
+} from '../../Api/queriesOrdonnance';
 import {
   errorMessageAlert,
   successMessageAlert,
 } from '../components/AlerteModal';
 import imgMedicament from './../../assets/images/medicament.jpg';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useOneTraitement } from '../../Api/queriesTraitement';
 
-export default function NewOrdonance() {
+export default function UpdateOrdonance() {
   const { id } = useParams();
+  // Recherche State
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Ajoute des produits dans le panier sans besoins de la base de données
+  const [ordonnanceItems, setOrdonnanceItems] = useState([]);
 
   // State de navigation
   const navigate = useNavigate();
 
-  // Query pour le Traitement Sélectionné
-  const { data: selectedTraitement } = useOneTraitement(id);
-
   // Query pour afficher les Médicament
   const { data: medicamentsData, isLoading, error } = useAllMedicament();
-
-  // Recherche State
-  const [searchTerm, setSearchTerm] = useState('');
+  // Query pour ajouter une COMMANDE dans la base de données
+  const { mutate: updateOrdonnance } = useUpdateOrdonnance();
+  const { data: selectedOrdonnance } = useOneOrdonnance(id);
 
   // Fontion pour Rechercher
   const filterSearchMedicaments = medicamentsData?.filter((medica) => {
@@ -50,12 +55,22 @@ export default function NewOrdonance() {
     );
   });
 
-  // Query pour ajouter une COMMANDE dans la base de données
-  const { mutate: createOrdonnance } = useCreateOrdonnance();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Ajoute des produits dans le panier sans besoins de la base de données
-  const [ordonnanceItems, setOrdonnanceItems] = useState([]);
+  // SelectedOrdonnance Items dans le panier
+  useEffect(() => {
+    if (
+      selectedOrdonnance?.ordonnances?.items &&
+      selectedOrdonnance?.ordonnances?.items.length > 0
+    ) {
+      const initialItems = selectedOrdonnance?.ordonnances?.items?.map(
+        (item) => ({
+          ordonnance: item.medicaments,
+          quantity: item.quantity,
+          customerPrice: item.customerPrice || item.medicaments.price,
+        })
+      );
+      setOrdonnanceItems(initialItems);
+    }
+  }, [selectedOrdonnance]);
 
   //  Fonction pour ajouter les produit dans base de données
   const addToCart = (ordonnance) => {
@@ -69,16 +84,17 @@ export default function NewOrdonance() {
       if (existingItem) {
         return prevCart.map((item) =>
           item.ordonnance?._id === ordonnance?._id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+                customerPrice: ordonnance.price,
+              }
             : item
         );
       }
 
       //  Sinon on ajoute le produit avec la quantité (1)
-      return [
-        ...prevCart,
-        { ordonnance, quantity: 1, customerPrice: ordonnance.price },
-      ];
+      return [...prevCart, { ordonnance, quantity: 1 }];
     });
   };
 
@@ -114,46 +130,49 @@ export default function NewOrdonance() {
 
   // Fonction pour calculer le total des élements dans le panier
   const totalAmount = ordonnanceItems.reduce(
-    (total, item) => total + item.customerPrice * item.quantity,
+    (total, item) => total + item.ordonnance?.price * item.quantity,
     0
   );
 
   // Validation de commande et AJOUTE DANS LA BASE DE DONNEES
-  const handleSubmitOrder = () => {
+  const handleSubmitOrdonnance = () => {
     // Vérification de quantité dans le STOCK
-    if (ordonnanceItems.length === 0) return;
+    if (ordonnanceItems?.length === 0) return;
 
     setIsSubmitting(true);
     const payload = {
       items: ordonnanceItems.map((item) => ({
         medicaments: item.ordonnance?._id,
         quantity: item.quantity,
-        customerPrice: item.customerPrice,
+        customerPrice: item.customerPrice || item.ordonnance?.price,
       })),
       totalAmount,
-      traitement: selectedTraitement?._id, // ou autre choix si tu ajoutes un select
+      traitement: selectedOrdonnance?.traitement, // ou autre choix si tu ajoutes un select
     };
+    // Appel de l'API pour ajouter la COMMANDE
+    updateOrdonnance(
+      { id: selectedOrdonnance?.ordonnances?._id, data: payload },
+      {
+        onSuccess: () => {
+          // Après on vide le panier
+          clearCart();
+          successMessageAlert('Ordonnance validée avec succès !');
+          setIsSubmitting(false);
 
-    createOrdonnance(payload, {
-      onSuccess: () => {
-        // Après on vide le panier
-        clearCart();
-        successMessageAlert('Ordonnance validée avec succès !');
-        setIsSubmitting(false);
-
-        // Rédirection sur la page PAIEMENT
-        navigate('/paiements');
-      },
-      onError: (err) => {
-        const message =
-          err?.response?.data?.message ||
-          err ||
-          err?.message ||
-          "Erreur lors de la validation de l'Ordonnance?.";
-        errorMessageAlert(message);
-        setIsSubmitting(false);
-      },
-    });
+          // Rédirection sur la page PAIEMENT
+          navigate('/paiements');
+        },
+        onError: (err) => {
+          const message =
+            err?.response?.data?.message ||
+            err ||
+            err?.message ||
+            "Erreur lors de la validation de l'Ordonnance?.";
+          errorMessageAlert(message);
+          setIsSubmitting(false);
+        },
+      }
+    );
   };
 
   return (
@@ -292,7 +311,7 @@ export default function NewOrdonance() {
                     <Button
                       color='primary'
                       className='fw-bold'
-                      onClick={handleSubmitOrder}
+                      onClick={handleSubmitOrdonnance}
                     >
                       Valide
                     </Button>

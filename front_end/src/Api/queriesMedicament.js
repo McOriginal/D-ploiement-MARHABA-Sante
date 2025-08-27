@@ -21,16 +21,6 @@ export const useUpdateMedicament = () => {
 };
 
 // Mettre à jour une Medicaments avec Stock
-export const useDecrementMultipleStocks = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (items) =>
-      api.post('/medicaments/decrementMultipleStocks', { items }),
-    onSuccess: () => queryClient.invalidateQueries(['medicaments']),
-  });
-};
-
-// Mettre à jour une Medicaments avec Stock
 export const useCancelDecrementMultipleStocks = () => {
   const queryClient = useQueryClient();
   return useMutation({

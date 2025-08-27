@@ -18,25 +18,33 @@ export default function PaiementsListe() {
 
   // State de Recherche
   const [searchTerm, setSearchTerm] = useState('');
+  // --- State pour le filtre reliqua
+  const [filterReliqua, setFilterReliqua] = useState(false);
 
-  // Fonction de Rechercher
-  const filterSearchPaiement = paiementsData?.filter((paiement) => {
-    const search = searchTerm.toLowerCase();
-    return (
-      `${paiement?.traitement?.patient?.firstName} ${paiement?.traitement?.patient?.lastName}`
-        .toLowerCase()
-        .includes(search) ||
-      paiement?.traitement?.patient?.gender.toLowerCase().includes(search) ||
-      paiement?.traitement?.motif?.toLowerCase().includes(search) ||
-      paiement?.totalAmount.toString().includes(search) ||
-      (paiement?.totalPaye || '').toString().includes(search) ||
-      (paiement?.reduction || 0).toString().includes(search) ||
-      (
-        paiement?.paiementDate &&
-        new Date(paiement?.paiementDate).toLocaleDateString()
-      ).includes(search)
-    );
-  });
+  // --- Filtrage des paiements
+  const filterSearchPaiement = paiementsData
+    ?.filter((paiement) => {
+      const search = searchTerm.toLowerCase();
+      return (
+        `${paiement?.traitement?.patient?.firstName} ${paiement?.traitement?.patient?.lastName}`
+          .toLowerCase()
+          .includes(search) ||
+        paiement?.traitement?.patient?.gender.toLowerCase().includes(search) ||
+        paiement?.traitement?.motif?.toLowerCase().includes(search) ||
+        paiement?.totalAmount.toString().includes(search) ||
+        (paiement?.totalPaye || '').toString().includes(search) ||
+        (paiement?.reduction || 0).toString().includes(search) ||
+        (
+          paiement?.paiementDate &&
+          new Date(paiement?.paiementDate).toLocaleDateString()
+        ).includes(search)
+      );
+    })
+    ?.filter((paiement) => {
+      if (!filterReliqua) return true; // pas de filtre
+      const reliqua = (paiement?.totalAmount || 0) - (paiement?.totalPaye || 0);
+      return reliqua > 0;
+    });
 
   const navigate = useNavigate();
 
@@ -104,6 +112,22 @@ export default function PaiementsListe() {
                             <i className='fas fa-dollar-sign align-center me-1'></i>{' '}
                             Ajouter un Paiement
                           </Button>
+                        </div>
+                      </Col>
+                      <Col className='d-flex justify-content-center align-self-center'>
+                        <div className='form-check '>
+                          <input
+                            type='checkbox'
+                            className='form-check-input'
+                            id='filterReliqua'
+                            onChange={() => setFilterReliqua(!filterReliqua)}
+                          />
+                          <label
+                            className='form-check-label'
+                            htmlFor='filterReliqua'
+                          >
+                            Non Payés
+                          </label>
                         </div>
                       </Col>
                       <Col className='col-sm'>
@@ -242,7 +266,7 @@ export default function PaiementsListe() {
                                         : '----'}
                                     </td>
 
-                                    <td>
+                                    <td className='text-wrap'>
                                       {capitalizeWords(
                                         paiement?.traitement?.motif
                                       )}

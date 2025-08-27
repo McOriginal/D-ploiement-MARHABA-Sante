@@ -33,6 +33,7 @@ import img3 from '../../assets/images/t3.jpg';
 import img4 from '../../assets/images/t4.jpg';
 import { deleteButton } from '../components/AlerteModal';
 import { Link, useNavigate } from 'react-router-dom';
+import { connectedUserRole } from '../Authentication/userInfos';
 
 export default function TraitementsListe() {
   const [form_modal, setForm_modal] = useState(false);
@@ -238,7 +239,9 @@ export default function TraitementsListe() {
                       <th data-sort='traitement'>Traitement</th>
 
                       <th data-sort='date'>Début Maladie</th>
-                      <th data-sort='action'>Action</th>
+                      {connectedUserRole === 'admin' && (
+                        <th data-sort='action'>Action</th>
+                      )}
                     </tr>
                   </thead>
                   <tbody className='list form-check-all text-center'>
@@ -267,66 +270,75 @@ export default function TraitementsListe() {
                               ? formatPhoneNumber(trait?.patient?.phoneNumber)
                               : '----'}{' '}
                           </td>
-                          <td>{capitalizeWords(trait?.motif)} </td>
+                          <td
+                            className='text-wrap'
+                            style={{ maxWidth: '200px' }}
+                          >
+                            {capitalizeWords(trait?.motif)}{' '}
+                          </td>
                           <td>
                             {new Date(trait?.startDate).toLocaleDateString()} -{' '}
                             {capitalizeWords(trait?.startTime)}{' '}
                           </td>
-                          <td>
-                            {isDeletting && <LoadingSpiner />}
+                          {connectedUserRole === 'admin' && (
+                            <td>
+                              {isDeletting && <LoadingSpiner />}
 
-                            {!isDeletting && (
-                              <UncontrolledDropdown className='dropdown d-inline-block'>
-                                <DropdownToggle
-                                  className='btn btn-soft-secondary btn-sm'
-                                  tag='button'
-                                >
-                                  <i className='bx bx-caret-down-square fs-2 text-info'></i>
-                                </DropdownToggle>
-                                <DropdownMenu className='dropdown-menu-end'>
-                                  <DropdownItem
-                                    onClick={() => {
-                                      handleNavigateToOrdonnance(trait._id);
-                                    }}
+                              {!isDeletting && (
+                                <UncontrolledDropdown className='dropdown d-inline-block'>
+                                  <DropdownToggle
+                                    className='btn btn-soft-secondary btn-sm'
+                                    tag='button'
                                   >
-                                    <i className='bx bx-joystick-button align-center me-2 text-info'></i>
-                                    Ordonnance
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => {
-                                      handleNavigateToDetails(trait._id);
-                                    }}
-                                  >
-                                    <i className='bx bx-show align-center me-2 text-info'></i>
-                                    Détails
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => {
-                                      setFormModalTitle('Modifier les données');
-                                      setTraitementToUpdate(trait);
-                                      tog_form_modal();
-                                    }}
-                                  >
-                                    <i className='ri-pencil-fill align-center me-2 text-warning'></i>
-                                    Modifier
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    onClick={() => {
-                                      deleteButton(
-                                        trait._id,
-                                        trait.motif,
-                                        deleteTraitement
-                                      );
-                                    }}
-                                  >
-                                    {' '}
-                                    <i className='ri-delete-bin-fill align-center me-2 text-danger'></i>{' '}
-                                    Supprimer{' '}
-                                  </DropdownItem>
-                                </DropdownMenu>
-                              </UncontrolledDropdown>
-                            )}
-                          </td>
+                                    <i className='bx bx-caret-down-square fs-2 text-info'></i>
+                                  </DropdownToggle>
+                                  <DropdownMenu className='dropdown-menu-end'>
+                                    <DropdownItem
+                                      onClick={() => {
+                                        handleNavigateToOrdonnance(trait._id);
+                                      }}
+                                    >
+                                      <i className='bx bx-joystick-button align-center me-2 text-info'></i>
+                                      Ordonnance
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() => {
+                                        handleNavigateToDetails(trait._id);
+                                      }}
+                                    >
+                                      <i className='bx bx-show align-center me-2 text-info'></i>
+                                      Détails
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() => {
+                                        setFormModalTitle(
+                                          'Modifier les données'
+                                        );
+                                        setTraitementToUpdate(trait);
+                                        tog_form_modal();
+                                      }}
+                                    >
+                                      <i className='ri-pencil-fill align-center me-2 text-warning'></i>
+                                      Modifier
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      onClick={() => {
+                                        deleteButton(
+                                          trait._id,
+                                          trait.motif,
+                                          deleteTraitement
+                                        );
+                                      }}
+                                    >
+                                      {' '}
+                                      <i className='ri-delete-bin-fill align-center me-2 text-danger'></i>{' '}
+                                      Supprimer{' '}
+                                    </DropdownItem>
+                                  </DropdownMenu>
+                                </UncontrolledDropdown>
+                              )}
+                            </td>
+                          )}
                         </tr>
                       ))}
                   </tbody>
@@ -366,37 +378,42 @@ export default function TraitementsListe() {
                             <i className='bx bx-joystick-button align-center me-2 text-info'></i>
                             Ordonnance
                           </DropdownItem>
-                          <DropdownItem
-                            onClick={() => {
-                              handleNavigateToDetails(trait._id);
-                            }}
-                          >
-                            <i className='bx bx-show align-center me-2 text-info'></i>
-                            Détails
-                          </DropdownItem>
-                          <DropdownItem
-                            onClick={() => {
-                              setFormModalTitle('Modifier les données');
-                              setTraitementToUpdate(trait);
-                              tog_form_modal();
-                            }}
-                          >
-                            <i className='ri-pencil-fill align-center me-2 text-warning'></i>
-                            Modifier
-                          </DropdownItem>
-                          <DropdownItem
-                            onClick={() => {
-                              deleteButton(
-                                trait._id,
-                                trait.motif,
-                                deleteTraitement
-                              );
-                            }}
-                          >
-                            {' '}
-                            <i className='ri-delete-bin-fill align-center me-2 text-danger'></i>{' '}
-                            Supprimer{' '}
-                          </DropdownItem>
+                          {connectedUserRole === 'admin' && (
+                            <div>
+                              {' '}
+                              <DropdownItem
+                                onClick={() => {
+                                  handleNavigateToDetails(trait._id);
+                                }}
+                              >
+                                <i className='bx bx-show align-center me-2 text-info'></i>
+                                Détails
+                              </DropdownItem>
+                              <DropdownItem
+                                onClick={() => {
+                                  setFormModalTitle('Modifier les données');
+                                  setTraitementToUpdate(trait);
+                                  tog_form_modal();
+                                }}
+                              >
+                                <i className='ri-pencil-fill align-center me-2 text-warning'></i>
+                                Modifier
+                              </DropdownItem>
+                              <DropdownItem
+                                onClick={() => {
+                                  deleteButton(
+                                    trait._id,
+                                    trait.motif,
+                                    deleteTraitement
+                                  );
+                                }}
+                              >
+                                {' '}
+                                <i className='ri-delete-bin-fill align-center me-2 text-danger'></i>{' '}
+                                Supprimer{' '}
+                              </DropdownItem>
+                            </div>
+                          )}
                         </DropdownMenu>
                       </UncontrolledDropdown>
                     </div>

@@ -2,22 +2,26 @@ import { Button, Card, CardBody, Col, Container, Row } from 'reactstrap';
 import Breadcrumbs from '../../components/Common/Breadcrumb';
 import LoadingSpiner from '../components/LoadingSpiner';
 import { capitalizeWords, formatPrice } from '../components/capitalizeFunction';
-import { Link } from 'react-router-dom';
-import { useAllOrdonnances } from '../../Api/queriesOrdonnance';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  useAllOrdonnances,
+  useDeleteOrdonnance,
+} from '../../Api/queriesOrdonnance';
 import React, { useState } from 'react';
 import OrdonnanceDetails from './OrdonnanceDetails';
-import { useCancelDecrementMultipleStocks } from '../../Api/queriesMedicament';
 import Swal from 'sweetalert2';
+import { connectedUserRole } from '../Authentication/userInfos';
 
 export default function OrdonnanceListe() {
+  const navigate = useNavigate();
   // Afficher toutes les ordonnances
   const { data: ordonnances, isLoading, error } = useAllOrdonnances();
 
   // ID de l'ordonnance sélectionnée pour les détails
   const [selectedOrdonnanceID, setSelectedOrdonnanceID] = useState(false);
   // Annuler une Ordonnance en suite la supprimer
-  const { mutate: cancelDecrementMultipleStocks } =
-    useCancelDecrementMultipleStocks();
+  const { mutate: deleteAndDecrementMultipleStocks, isLoading: isDeletting } =
+    useDeleteOrdonnance();
 
   // ---------------------------
   const [show_modal, setShow_modal] = useState(false);
@@ -42,7 +46,7 @@ export default function OrdonnanceListe() {
 
   // Cancel Ordonnances function
   // Annulé l'ordonnace et ajouté ses médicaments au stock
-  function cancelOrdonnance(ordo) {
+  function onCancelOrdonnance(ordo) {
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn btn-success ms-2',
@@ -66,13 +70,13 @@ export default function OrdonnanceListe() {
         if (result.isConfirmed) {
           try {
             const payload = {
-              ordonnanceId: ordo._id,
-              items: ordo.items.map((item) => ({
-                medicamentId: item.medicaments,
-                quantity: item.quantity,
+              id: ordo?._id,
+              items: ordo?.items.map((item) => ({
+                medicaments: item?.medicaments,
+                quantity: item?.quantity,
               })),
             };
-            cancelDecrementMultipleStocks(payload, {
+            deleteAndDecrementMultipleStocks(payload, {
               onSuccess: () => {
                 swalWithBootstrapButtons.fire({
                   title: 'Supprimé!',
@@ -84,8 +88,8 @@ export default function OrdonnanceListe() {
                 swalWithBootstrapButtons.fire({
                   title: 'Erreur',
                   text:
-                    e?.response?.data?.message ||
-                    'Une erreur est survenue lors de la suppression.',
+                    'Une erreur est survenue lors de la suppression.' ||
+                    e?.response?.data?.message,
                   icon: 'error',
                 });
               },
@@ -194,7 +198,7 @@ export default function OrdonnanceListe() {
                             id='ordonnanceTable'
                           >
                             <thead className='table-light'>
-                              <tr>
+                              <tr className='text-center'>
                                 <th scope='col' style={{ width: '50px' }}></th>
                                 <th scope='col' style={{ width: '50px' }}>
                                   Date d'ordonnance
@@ -227,7 +231,7 @@ export default function OrdonnanceListe() {
                               {filterSearchOrdonnanceData?.length > 0 &&
                                 filterSearchOrdonnanceData?.map(
                                   (ordo, index) => (
-                                    <tr key={ordo?._id}>
+                                    <tr key={ordo?._id} className='text-center'>
                                       <th scope='row'>{index + 1}</th>
                                       <th>
                                         {new Date(
@@ -247,7 +251,10 @@ export default function OrdonnanceListe() {
                                           ordo?.traitement?.patient?.lastName
                                         )}
                                       </td>
-                                      <td>
+                                      <td
+                                        className='text-wrap'
+                                        style={{ maxWidth: '200px' }}
+                                      >
                                         {ordo?.traitement
                                           ? capitalizeWords(
                                               ordo?.traitement?.motif
@@ -272,35 +279,53 @@ export default function OrdonnanceListe() {
                                       </td>
 
                                       <td>
-                                        <div className='d-flex gap-2'>
-                                          <div className='show-details'>
-                                            <button
-                                              className='btn btn-sm btn-warning show-item-btn'
-                                              data-bs-toggle='modal'
-                                              data-bs-target='#showdetails'
-                                              onClick={() =>
-                                                cancelOrdonnance(ordo)
-                                              }
-                                            >
-                                              Annuler
-                                            </button>
+                                        {isDeletting && <LoadingSpiner />}
+                                        {!isDeletting && (
+                                          <div className='d-flex gap-2'>
+                                            {connectedUserRole === 'admin' && (
+                                              <div>
+                                                <button
+                                                  className='btn btn-sm btn-secondary '
+                                                  onClick={() =>
+                                                    navigate(
+                                                      `/traitements/updateOrdonnance/${ordo?._id}`
+                                                    )
+                                                  }
+                                                >
+                                                  <i className=' bx bx-edit-alt text-white'></i>
+                                                </button>
+                                              </div>
+                                            )}
+                                            <div className='show-details'>
+                                              <button
+                                                className='btn btn-sm btn-info '
+                                                data-bs-toggle='modal'
+                                                data-bs-target='#showdetails'
+                                                onClick={() => {
+                                                  setSelectedOrdonnanceID(
+                                                    ordo?._id
+                                                  );
+                                                  tog_show_modal();
+                                                }}
+                                              >
+                                                <i className=' bx bx-show-alt text-white'></i>
+                                              </button>
+                                            </div>
+
+                                            {connectedUserRole === 'admin' && (
+                                              <div>
+                                                <button
+                                                  className='btn btn-sm btn-danger '
+                                                  onClick={() =>
+                                                    onCancelOrdonnance(ordo)
+                                                  }
+                                                >
+                                                  Annuler
+                                                </button>
+                                              </div>
+                                            )}
                                           </div>
-                                          <div className='show-details'>
-                                            <button
-                                              className='btn btn-sm btn-info show-item-btn'
-                                              data-bs-toggle='modal'
-                                              data-bs-target='#showdetails'
-                                              onClick={() => {
-                                                setSelectedOrdonnanceID(
-                                                  ordo?._id
-                                                );
-                                                tog_show_modal();
-                                              }}
-                                            >
-                                              <i className=' bx bx-show-alt text-white'></i>
-                                            </button>
-                                          </div>
-                                        </div>
+                                        )}
                                       </td>
                                     </tr>
                                   )

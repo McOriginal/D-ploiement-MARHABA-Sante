@@ -11,6 +11,7 @@ import {
   formatPrice,
 } from '../components/capitalizeFunction';
 import { deleteButton } from '../components/AlerteModal';
+import { connectedUserRole } from '../Authentication/userInfos';
 
 export default function PatientsListe() {
   const [form_modal, setForm_modal] = useState(false);
@@ -135,7 +136,7 @@ export default function PatientsListe() {
                           id='patientTable'
                         >
                           <thead className='table-light'>
-                            <tr>
+                            <tr className='text-center'>
                               <th scope='col' style={{ width: '50px' }}>
                                 ID
                               </th>
@@ -154,7 +155,7 @@ export default function PatientsListe() {
                           <tbody className='list form-check-all text-center'>
                             {filteredPatients?.length > 0 &&
                               filteredPatients?.map((patient, index) => (
-                                <tr key={patient?._id}>
+                                <tr key={patient?._id} className='text-center'>
                                   <th scope='row'>{index + 1}</th>
 
                                   <td>
@@ -194,45 +195,46 @@ export default function PatientsListe() {
 
                                   <td>
                                     {isDeleting && <LoadingSpiner />}
-                                    {!isDeleting && (
-                                      <div className='d-flex gap-2'>
-                                        <div>
-                                          <button
-                                            className='btn btn-sm btn-success edit-item-btn'
-                                            data-bs-toggle='modal'
-                                            data-bs-target='#showModal'
-                                            onClick={() => {
-                                              setFormModalTitle(
-                                                'Modifier les données'
-                                              );
-                                              setpatientToUpdate(patient);
-                                              tog_form_modal();
-                                            }}
-                                          >
-                                            <i className='ri-pencil-fill text-white'></i>
-                                          </button>
-                                        </div>
+                                    {!isDeleting &&
+                                      connectedUserRole === 'admin' && (
+                                        <div className='d-flex gap-2'>
+                                          <div>
+                                            <button
+                                              className='btn btn-sm btn-success edit-item-btn'
+                                              data-bs-toggle='modal'
+                                              data-bs-target='#showModal'
+                                              onClick={() => {
+                                                setFormModalTitle(
+                                                  'Modifier les données'
+                                                );
+                                                setpatientToUpdate(patient);
+                                                tog_form_modal();
+                                              }}
+                                            >
+                                              <i className='ri-pencil-fill text-white'></i>
+                                            </button>
+                                          </div>
 
-                                        <div className='remove'>
-                                          <button
-                                            className='btn btn-sm btn-danger remove-item-btn'
-                                            data-bs-toggle='modal'
-                                            data-bs-target='#deleteRecordModal'
-                                            onClick={() => {
-                                              deleteButton(
-                                                patient?._id,
-                                                patient?.firstName +
-                                                  ' ' +
-                                                  patient?.lastName,
-                                                deletePatient
-                                              );
-                                            }}
-                                          >
-                                            <i className='ri-delete-bin-fill text-white'></i>
-                                          </button>
+                                          <div className='remove'>
+                                            <button
+                                              className='btn btn-sm btn-danger remove-item-btn'
+                                              data-bs-toggle='modal'
+                                              data-bs-target='#deleteRecordModal'
+                                              onClick={() => {
+                                                deleteButton(
+                                                  patient?._id,
+                                                  patient?.firstName +
+                                                    ' ' +
+                                                    patient?.lastName,
+                                                  deletePatient
+                                                );
+                                              }}
+                                            >
+                                              <i className='ri-delete-bin-fill text-white'></i>
+                                            </button>
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
+                                      )}
                                   </td>
                                 </tr>
                               ))}

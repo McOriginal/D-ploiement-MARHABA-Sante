@@ -60,7 +60,7 @@ export const useGetTraitementOrdonnance = () =>
 export const useDeleteOrdonnance = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id) => api.delete(`/ordonnances/deleteOrdonnance/${id}`),
+    mutationFn: ({ id }) => api.post(`/ordonnances/deleteOrdonnance/${id}`),
     onSuccess: () => queryClient.invalidateQueries(['ordonnances']),
   });
 };

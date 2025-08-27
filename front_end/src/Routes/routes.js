@@ -43,6 +43,7 @@ import MedicamentSansStock from '../Pages/Pharmacy/MedicamentSansStock.js';
 import UpdatePassword from '../Pages/Authentication/UpdatePassword.js';
 import VerifyCode from '../Pages/Authentication/VerifyCode.js';
 import ResetPassword from '../Pages/Authentication/ResetPassword.js';
+import UpdateOrdonance from '../Pages/Ordonnances/UpdateOrdonance.js';
 
 const sharedRoutes = [
   //appointments
@@ -78,6 +79,9 @@ const authProtectedRoutes = [
 
   // Ordonnance
   { path: '/ordonnances', component: <OrdonnanceListe /> },
+
+  // Update Ordonnance
+  { path: '/traitements/updateOrdonnance/:id', component: <UpdateOrdonance /> },
 
   // Doctors
   { path: '/doctors', component: <DoctorsListe /> },
