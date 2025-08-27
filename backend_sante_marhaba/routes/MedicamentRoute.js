@@ -23,18 +23,6 @@ router.get('/getOneMedicament/:id', medicamentController.getOneMedicament);
 // Mettre à jour une Medicament
 router.put('/updateMedicament/:id', medicamentController.updateMedicament);
 
-// Mettre à jour une Medicament avec le Stock
-router.post(
-  '/decrementMultipleStocks',
-  medicamentController.decrementMultipleStocks
-);
-
-// Annuler à jour une Medicament avec le Stock
-router.post(
-  '/cancelDecrementMultipleStocks/:ordonnanceId',
-  medicamentController.cancelOrdonnance
-);
-
 // supprimer une Matière
 router.delete(
   '/deleteMedicament/:id',

@@ -1,38 +1,69 @@
+const mongoose = require('mongoose');
 const Approvisonement = require('../models/ApprovisonementModel');
 const Medicament = require('../models/MedicamentModel');
+const Depense = require('../models/DepenseModel');
 
 // Create a new approvisonement
 exports.createApprovisonement = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const { medicament, quantity, price, ...restOfData } = req.body;
-    // On change les valeurs quantity et price en nombres
-    formatQuantity = Number(quantity);
-    formatPrice = Number(price);
 
-    // Medicament ID
-    // const medicamentID = await Medicament.findById(req.params.medicament_id);
+    // On cast quantity et price en nombres
+    const formatQuantity = Number(quantity);
+    const formatPrice = Number(price);
+
     if (!medicament) {
-      return res.status(404).json({ message: 'Médicament non trouvée' });
+      return res.status(404).json({ message: 'Médicament non trouvé' });
     }
 
-    // On ajoute la quantité sur le stock disponible de médicament
-    await Medicament.findByIdAndUpdate(
+    // 1️ Mise à jour du stock du médicament
+    const medica = await Medicament.findByIdAndUpdate(
       medicament,
       { $inc: { stock: formatQuantity } },
-      { new: true }
+      { new: true, session }
     );
 
-    // On crée l'approvisionnement
-    const approvisonement = await Approvisonement.create({
-      ...restOfData,
-      quantity: formatQuantity,
-      price: formatPrice,
-      medicament,
-    });
+    if (!medica) {
+      throw new Error('Médicament introuvable pour mise à jour');
+    }
 
-    return res.status(201).json(approvisonement);
+    // 2️ Création de l'approvisionnement
+    const approvisonement = await Approvisonement.create(
+      [
+        {
+          ...restOfData,
+          quantity: formatQuantity,
+          price: formatPrice,
+          medicament,
+        },
+      ],
+      { session }
+    );
+
+    // 3️ Création de la dépense associée
+    await Depense.create(
+      [
+        {
+          totalAmount: formatPrice,
+          motifDepense: `Approvisionnement de (${quantity}) ${medica.name}`,
+          dateOfDepense: approvisonement[0].deliveryDate,
+        },
+      ],
+      { session }
+    );
+
+    //  Si tout est OK, on valide la transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(201).json(approvisonement[0]);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    await session.abortTransaction();
+    session.endSession();
+    return res.status(400).json({ message: error.message });
   }
 };
 

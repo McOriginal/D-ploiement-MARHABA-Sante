@@ -147,83 +147,83 @@ exports.deleteAllMedicament = async (req, res) => {
 };
 
 // -----------------------------------------------
-exports.decrementMultipleStocks = async (req, res) => {
-  const session = await Medicament.startSession();
-  session.startTransaction();
+// exports.decrementMultipleStocks = async (req, res) => {
+//   const session = await Medicament.startSession();
+//   session.startTransaction();
 
-  try {
-    const items = req.body.items; // [{ id, quantity }, ...]
+//   try {
+//     const items = req.body.items; // [{ id, quantity }, ...]
 
-    for (const { medicaments, quantity } of items) {
-      const medicament = await Medicament.findById(medicaments).session(
-        session
-      );
-      if (!medicament) {
-      }
+//     for (const { medicaments, quantity } of items) {
+//       const medicament = await Medicament.findById(medicaments).session(
+//         session
+//       );
+//       if (!medicament) {
+//       }
 
-      if (medicament.stock < quantity) {
-        console.log(
-          `Stock insuffisant pour ${medicament.name}. Disponible : ${medicament.stock}`
-        );
-      }
+//       if (medicament.stock < quantity) {
+//         console.log(
+//           `Stock insuffisant pour ${medicament.name}. Disponible : ${medicament.stock}`
+//         );
+//       }
 
-      medicament.stock -= quantity;
-      await medicament.save({ session });
-    }
+//       medicament.stock -= quantity;
+//       await medicament.save({ session });
+//     }
 
-    await session.commitTransaction();
-    session.endSession();
+//     await session.commitTransaction();
+//     session.endSession();
 
-    return res.status(200).json({ message: 'Stocks mis à jour avec succès' });
-  } catch (err) {
-    await session.abortTransaction();
-    session.endSession();
-    return res.status(400).json({ message: err.message });
-  }
-};
+//     return res.status(200).json({ message: 'Stocks mis à jour avec succès' });
+//   } catch (err) {
+//     await session.abortTransaction();
+//     session.endSession();
+//     return res.status(400).json({ message: err.message });
+//   }
+// };
 
 // annuler une ORDONNANCES et retablir le Stock
-exports.cancelOrdonnance = async (req, res) => {
-  const session = await Medicament.startSession();
-  session.startTransaction();
+// exports.cancelOrdonnance = async (req, res) => {
+//   const session = await Medicament.startSession();
+//   session.startTransaction();
 
-  try {
-    const ordonnanceId = req.params.ordonnanceId;
-    const { items } = req.body;
+//   try {
+//     const ordonnanceId = req.params.ordonnanceId;
+//     const { items } = req.body;
 
-    for (const { medicamentId, quantity } of items) {
-      const medicament = await Medicament.findById(medicamentId).session(
-        session
-      );
-      if (!medicament) {
-        throw new Error(`Médicament ${medicamentId} non trouvé`);
-      }
-      medicament.stock += quantity;
-      await medicament.save({ session });
-    }
+//     for (const { medicamentId, quantity } of items) {
+//       const medicament = await Medicament.findById(medicamentId).session(
+//         session
+//       );
+//       if (!medicament) {
+//         throw new Error(`Médicament ${medicamentId} non trouvé`);
+//       }
+//       medicament.stock += quantity;
+//       await medicament.save({ session });
+//     }
 
-    const deletedOrdonnance = await Ordonnance.findByIdAndDelete(ordonnanceId, {
-      session,
-    });
-    if (!deletedOrdonnance) {
-      throw new Error('Ordonnance non trouvée');
-    }
+//     const deletedOrdonnance = await Ordonnance.findByIdAndDelete(ordonnanceId, {
+//       session,
+//     });
+//     if (!deletedOrdonnance) {
+//       throw new Error('Ordonnance non trouvée');
+//     }
 
-    const trait = await Traitement.findById(deletedOrdonnance.traitement);
+//     const trait = await Traitement.findById(deletedOrdonnance.traitement);
 
-    const deletedPaiement = await Paiement.findOne({ traitement: trait });
-    await Paiement.findByIdAndDelete(deletedPaiement);
+//     const deletedPaiement = await Paiement.findOne({ traitement: trait });
+//     await Paiement.findByIdAndDelete(deletedPaiement);
 
-    await session.commitTransaction();
-    session.endSession();
+//     await session.commitTransaction();
+//     session.endSession();
 
-    return res
-      .status(200)
-      .json({ message: 'Annulation réussie, stock rétabli.' });
-  } catch (err) {
-    console.log(err);
-    await session.abortTransaction();
-    session.endSession();
-    return res.status(400).json({ message: err.message });
-  }
-};
+//     return res
+//       .status(200)
+//       .json({ message: 'Annulation réussie, stock rétabli.' });
+//   } catch (err) {
+//     console.log(err);
+//     await session.abortTransaction();
+//     session.endSession();
+//     return res.status(400).json({ message: err.message });
+//   }
+// };

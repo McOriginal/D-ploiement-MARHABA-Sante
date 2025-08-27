@@ -153,12 +153,12 @@ exports.deleteTraitement = async (req, res) => {
     // Si il y'a au moins un APPONTEMENT alors on parcours avec la boucle pour supprimer tous
     if (existeAppointement) {
       for (const appoint of existeAppointement) {
-        await Appointment.findByIdAndDelete(appoint._id);
+        await Appointment.findByIdAndDelete(appoint._id, { session });
       }
     }
 
     // au Final On supprime le Traitement
-    await Traitement.findByIdAndDelete(req.params.id);
+    await Traitement.findByIdAndDelete(req.params.id, { session });
 
     // On arrête la session
     await session.commitTransaction();

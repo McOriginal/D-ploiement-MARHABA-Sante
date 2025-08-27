@@ -5,6 +5,9 @@ const ordonnanceController = require('../controller/OrdonnanceController');
 //  Créer une nouvelle Ordonnance
 router.post('/createOrdonnance', ordonnanceController.createOrdonnance);
 
+// Mettre à jour l'ordonnance
+router.put('/updateOrdonnance/:id', ordonnanceController.updateOrdonnance);
+
 //  Obtenir toutes les Ordonnances
 router.get('/getAllOrdonnances', ordonnanceController.getAllOrdonnances);
 
@@ -17,16 +20,7 @@ router.get(
   ordonnanceController.getTraitementOrdonnance
 );
 
-//  Mettre à jour une Ordonnance
-router.put('/updateOrdonnance/:id', ordonnanceController.getOneOrdonnance);
-
 //  Supprimer une Ordonnance
-router.delete('/deleteOrdonnance/:id', ordonnanceController.deleteOrdonnance);
-
-//  Supprimer toutes les Ordonnance sans Ordonnance
-// router.delete(
-//   '/deleteAllOrdonnances',
-//   ordonnanceController.deleteAllOrdonnance
-// );
+router.post('/deleteOrdonnance/:id', ordonnanceController.deleteOrdonnance);
 
 module.exports = router;

@@ -1,52 +1,156 @@
-// controllers/OrdonnanceController.js
-
+const mongoose = require('mongoose');
 const Ordonnance = require('../models/OrdonanceModel');
 const Medicament = require('../models/MedicamentModel');
 const Traitement = require('../models/TraitementModel');
 
 exports.createOrdonnance = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const { items, ...restOfData } = req.body;
 
-    // Recherche Si il n'y a pas déjà une ORDONNANCES
+    // Vérification de l'unicité d'une ordonnance pour un traitement donné
     const existingOrdonnance = await Ordonnance.findOne({
       traitement: req.body.traitement,
-    });
+    }).session(session);
 
     if (existingOrdonnance) {
+      await session.abortTransaction();
+      session.endSession();
       return res
-        .status(404)
+        .status(400)
         .json({ message: 'Une Ordonnance existe déjà pour ce Traitement' });
     }
 
-    // Vérification des items et existence des produits
+    // Vérification des items
     if (!items || !Array.isArray(items) || items.length === 0) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(400).json({ message: 'Les articles sont requis.' });
     }
 
+    // Validation des médicaments et mise à jour des stocks
     for (const item of items) {
-      const medicament = await Medicament.findById(item.medicaments);
+      const medicament = await Medicament.findById(item.medicaments).session(
+        session
+      );
       if (!medicament) {
+        await session.abortTransaction();
+        session.endSession();
         return res
           .status(404)
-          .json({ message: `Medicament introuvable: ${item.medicaments}` });
+          .json({ message: `Médicament introuvable: ${item.medicaments}` });
       }
+
       if (item.quantity < 1) {
+        await session.abortTransaction();
+        session.endSession();
         return res
           .status(400)
           .json({ message: 'Quantité invalide pour un produit.' });
       }
+
+      if (medicament.stock < item.quantity) {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(400).json({
+          message: `Stock insuffisant pour ${medicament.name}. Disponible: ${medicament.stock}`,
+        });
+      }
+
+      // Décrémentation du stock
+      medicament.stock -= item.quantity;
+      await medicament.save({ session });
     }
 
-    const newOrdonnance = await Ordonnance.create({
-      items,
-      ...restOfData,
+    // Création de l’ordonnance
+    const newOrdonnance = await Ordonnance.create([{ items, ...restOfData }], {
+      session,
     });
 
-    res.status(201).json(newOrdonnance);
+    // Validation de la transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(201).json(newOrdonnance[0]);
   } catch (error) {
-    console.log("Erreur de validation l'ordonnance :", error);
+    await session.abortTransaction();
+    session.endSession();
+    console.error("Erreur lors de la création de l'ordonnance :", error);
     res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+
+// Update Ordonnance + ajuster les stocks
+exports.updateOrdonnance = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { id } = req.params; // id de l’ordonnance
+    const { items, ...restOfData } = req.body;
+    // Vérif que l’ordonnance existe
+    const ordonnance = await Ordonnance.findById(id).session(session);
+    if (!ordonnance) {
+      return res.status(404).json({ message: 'Ordonnance introuvable' });
+    }
+
+    // Vérif des items
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: 'Les articles sont requis.' });
+    }
+
+    // --- 1. Restaurer les stocks des anciens items avant mise à jour ---
+    for (const oldItem of ordonnance.items) {
+      const medicament = await Medicament.findById(oldItem.medicaments).session(
+        session
+      );
+      if (medicament) {
+        medicament.stock += oldItem.quantity; // on réajoute au stock
+        await medicament.save({ session });
+      }
+    }
+
+    // --- 2. Vérifier et appliquer les nouveaux items ---
+    for (const newItem of items) {
+      const medicament = await Medicament.findById(newItem.medicaments).session(
+        session
+      );
+      if (!medicament) {
+        throw new Error(`Medicament introuvable: ${newItem.medicaments}`);
+      }
+
+      if (newItem.quantity < 1) {
+        throw new Error(`Quantité invalide pour le produit ${medicament.name}`);
+      }
+
+      if (medicament.stock < newItem.quantity) {
+        throw new Error(
+          `Stock insuffisant pour ${medicament.name}, disponible : ${medicament.stock}`
+        );
+      }
+
+      medicament.stock -= newItem.quantity; // on décrémente le stock
+      await medicament.save({ session });
+    }
+
+    // --- 3. Mettre à jour l’ordonnance ---
+    ordonnance.items = items;
+    Object.assign(ordonnance, restOfData);
+    await ordonnance.save({ session });
+
+    // --- 4. Valider la transaction ---
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(200).json(ordonnance);
+  } catch (err) {
+    console.log(err);
+
+    await session.abortTransaction();
+    session.endSession();
+    return res.status(400).json({ message: err.message });
   }
 };
 
@@ -114,15 +218,45 @@ exports.getTraitementOrdonnance = async (req, res) => {
   }
 };
 
+// Supprimer une ordonnance + restaurer les stocks
+
 exports.deleteOrdonnance = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    await Ordonnance.findByIdAndDelete(req.params.id);
+    const id = req.params.id;
+    // Vérif que l’ordonnance existe
+    const ordonnance = await Ordonnance.findById(id).session(session);
+    if (!ordonnance) {
+      return res.status(404).json({ message: 'Ordonnance introuvable' });
+    }
+
+    // --- 1. Restaurer les stocks des médicaments ---
+    for (const item of ordonnance.items) {
+      const medicament = await Medicament.findById(item.medicaments).session(
+        session
+      );
+      if (medicament) {
+        medicament.stock += item.quantity; // réajout du stock
+        await medicament.save({ session });
+      }
+    }
+
+    // --- 2. Supprimer l’ordonnance ---
+    await ordonnance.deleteOne({ session });
+
+    // --- 3. Valider la transaction ---
+    await session.commitTransaction();
+    session.endSession();
 
     return res
       .status(200)
-      .json({ message: `l\'ordonnance supprimé avec succès` });
-  } catch (e) {
-    console.log(e);
-    return res.status(404).json(e);
+      .json({ message: 'Ordonnance supprimée avec succès' });
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    console.log(err);
+    return res.status(400).json({ message: err.message });
   }
 };

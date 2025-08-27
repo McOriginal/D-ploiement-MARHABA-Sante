@@ -28,6 +28,11 @@ const ordonanceSchema = new mongoose.Schema(
           required: [true, 'La quantité est requise'],
           min: [1, 'La quantité doit être au moins 1'],
         },
+        customerPrice: {
+          type: Number,
+          required: [true, 'Le prix est requis'],
+          min: [1, 'Le prix doit être positif'],
+        },
       },
     ],
     totalAmount: {
